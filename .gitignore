@@ -3,8 +3,8 @@ build/
 dist/
 *.log
 *.pyc
-firefox_cache/
-chrome_cache/
+firefox-cache/
+chrome-cache/
 *.png
 **/.DS_Store
 **/*.pyc

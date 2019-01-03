@@ -195,13 +195,13 @@ class WhatsAPIDriver(object):
 
             self.logger.info("Starting webdriver")
 
-            self.executable_path = './webwhatsapi/driver/geckodriver'
+            self.executable_path = './WebWhatsApi/driver/geckodriver'
             if platform.system().lower() == "windows":
                 self.executable_path += ".exe"
             elif platform.system().lower() == "linux":
                 self.executable_path += "-linux"
             self.executable_path = os.path.abspath(self.executable_path)
-            print(self.executable_path)
+
             self.driver = webdriver.Firefox(executable_path=self.executable_path, capabilities=capabilities,
                                             options=options, **extra_params)
 
@@ -220,11 +220,12 @@ class WhatsAPIDriver(object):
 
             self.logger.info("Starting webdriver")
 
-            self.executable_path = "./driver/chromedrive"
+            self.executable_path = './WebWhatsApi/driver/chromedriver'
             if platform.system().lower() == "windows":
                 self.executable_path += ".exe"
             elif platform.system().lower() == "linux":
                 self.executable_path += "-linux"
+            self.executable_path = os.path.abspath(self.executable_path)
 
             self.driver = webdriver.Chrome(executable_path=self.executable_path, chrome_options=self._profile,
                                            **extra_params)
