@@ -131,7 +131,8 @@ class JsFunction(object):
                 retry_command.is_a_retry = True
                 retry_command(*args, **kwargs)
             else:
-                raise JsException("Error in function {0} ({1}). Command: {2}".format(self.function_name, e.msg, command))
+                raise JsException(
+                    "Error in function {0} ({1}). Command: {2}".format(self.function_name, e.msg, command))
         except WebDriverException as e:
             if e.msg == 'Timed out':
                 raise WapiPhoneNotConnectedException("Phone not connected to Internet")

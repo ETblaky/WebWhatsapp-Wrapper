@@ -1,5 +1,4 @@
 import mimetypes
-from base64 import b64decode
 from datetime import datetime
 
 import os
@@ -10,7 +9,7 @@ from .contact import Contact
 from .whatsapp_object import WhatsappObject
 
 
-def getContacts(x, driver):
+def get_contacts(x, driver):
     try:
         contact = driver.get_contact_from_id(x)
         return contact
@@ -42,7 +41,6 @@ def factory_message(js_obj, driver):
 
 
 class Message(WhatsappObject):
-
     sender = Union[Contact, bool]
 
     def __init__(self, js_obj, driver=None):
@@ -77,10 +75,10 @@ class Message(WhatsappObject):
 
 class MediaMessage(Message):
     crypt_keys = {'document': '576861747341707020446f63756d656e74204b657973',
-                  'image'   : '576861747341707020496d616765204b657973',
-                  'video'   : '576861747341707020566964656f204b657973',
-                  'ptt'     : '576861747341707020417564696f204b657973',
-                  'audio'   : '576861747341707020417564696f204b657973'}
+                  'image': '576861747341707020496d616765204b657973',
+                  'video': '576861747341707020566964656f204b657973',
+                  'ptt': '576861747341707020417564696f204b657973',
+                  'audio': '576861747341707020417564696f204b657973'}
 
     def __init__(self, js_obj, driver=None):
         super(MediaMessage, self).__init__(js_obj, driver)
@@ -177,7 +175,7 @@ class NotificationMessage(Message):
         self.type = js_obj["type"]
         self.subtype = js_obj["subtype"]
         if js_obj["recipients"]:
-            self.recipients = [getContacts(x, driver) for x in js_obj["recipients"]]
+            self.recipients = [get_contacts(x, driver) for x in js_obj["recipients"]]
 
     def __repr__(self):
         readable = {

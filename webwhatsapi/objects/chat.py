@@ -38,7 +38,6 @@ class Chat(WhatsappObjectWithId):
     def get_messages(self, include_me=False, include_notifications=False):
         return list(self.driver.get_all_messages_in_chat(self, include_me, include_notifications))
 
-
     def get_unread_messages(self,
                             include_me=False,
                             include_notifications=False):
@@ -59,8 +58,8 @@ class Chat(WhatsappObjectWithId):
             include_me,
             include_notifications
         ))
-    # get_unread_messages()
 
+    # get_unread_messages()
 
     def load_earlier_messages(self):
         self.driver.chat_load_earlier_messages(self.id)

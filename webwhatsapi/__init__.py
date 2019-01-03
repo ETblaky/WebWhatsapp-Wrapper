@@ -185,7 +185,7 @@ class WhatsAPIDriver(object):
             options = Options()
 
             if headless:
-                options.set_headless()
+                options.headless = True
 
             options.profile = self._profile
 
@@ -234,14 +234,13 @@ class WhatsAPIDriver(object):
 
     def connect(self):
         self.driver.get(self._URL)
-        
-        profilePath = ""
+
         if self.client == "chrome":
-            profilePath = ""
+            profile_path = ""
         else:
-            profilePath = self._profile.path
-        
-        local_storage_file = os.path.join(profilePath, self._LOCAL_STORAGE_FILE)
+            profile_path = self._profile.path
+
+        local_storage_file = os.path.join(profile_path, self._LOCAL_STORAGE_FILE)
         if os.path.exists(local_storage_file):
             with open(local_storage_file) as f:
                 self.set_local_storage(loads(f.read()))
@@ -357,14 +356,14 @@ class WhatsAPIDriver(object):
         return unread_messages
 
     def get_unread_messages_in_chat(self,
-                                    id,
+                                    block_id,
                                     include_me=False,
                                     include_notifications=False):
         """
         I fetch unread messages from an asked chat.
 
-        :param id: chat id
-        :type  id: str
+        :param block_id: chat id
+        :type  block_id: str
         :param include_me: if user's messages are to be included
         :type  include_me: bool
         :param include_notifications: if events happening on chat are to be included
@@ -374,7 +373,7 @@ class WhatsAPIDriver(object):
         """
         # get unread messages
         messages = self.wapi_functions.getUnreadMessagesInChat(
-            id,
+            block_id,
             include_me,
             include_notifications
         )
@@ -391,6 +390,7 @@ class WhatsAPIDriver(object):
         """
         Fetches messages in chat
 
+        :param chat: Chat object
         :param include_me: Include user's messages
         :type include_me: bool or None
         :param include_notifications: Include events happening on chat
@@ -400,14 +400,14 @@ class WhatsAPIDriver(object):
         """
         message_objs = self.wapi_functions.getAllMessagesInChat(chat.id, include_me, include_notifications)
 
-        messages = []
         for message in message_objs:
-            yield(factory_message(message, self))
+            yield (factory_message(message, self))
 
     def get_all_message_ids_in_chat(self, chat, include_me=False, include_notifications=False):
         """
         Fetches message ids in chat
 
+        :param chat: Chat object
         :param include_me: Include user's messages
         :type include_me: bool or None
         :param include_notifications: Include events happening on chat
@@ -464,7 +464,7 @@ class WhatsAPIDriver(object):
 
         raise ChatNotFoundError("Chat {0} not found".format(chat_id))
 
-    def get_chat_from_phone_number(self, number, createIfNotFound = False):
+    def get_chat_from_phone_number(self, number, create_if_not_found=False):
         """
         Gets chat by phone number
         Number format should be as it appears in Whatsapp ID
@@ -473,6 +473,7 @@ class WhatsAPIDriver(object):
         This function would receive:
         972512345678
 
+        :param create_if_not_found: Create a new chat if not found
         :param number: Phone number
         :return: Chat
         :rtype: Chat
@@ -481,7 +482,7 @@ class WhatsAPIDriver(object):
             if not isinstance(chat, UserChat) or number not in chat.id:
                 continue
             return chat
-        if createIfNotFound:
+        if create_if_not_found:
             self.create_chat_by_number(number)
             self.wait_for_login()
             for chat in self.get_all_chats():
@@ -551,7 +552,7 @@ class WhatsAPIDriver(object):
         :type message: str
         """
         return self.wapi_functions.sendMessageToID(recipient, message)
-    
+
     def convert_to_base64(self, path):
         """
         :param path: file path
@@ -560,26 +561,22 @@ class WhatsAPIDriver(object):
 
         mime = magic.Magic(mime=True)
         content_type = mime.from_file(path)
-        archive = ''
         with open(path, "rb") as image_file:
             archive = b64encode(image_file.read())
             archive = archive.decode('utf-8')
         return 'data:' + content_type + ';base64,' + archive
-    
-    
-    def send_media(self, path, chatid, caption):
+
+    def send_media(self, path, chat_id, caption):
         """
             converts the file to base64 and sends it using the sendImage function of wapi.js
         :param path: file path
-        :param chatid: chatId to be sent
+        :param chat_id: chatId to be sent
         :param caption:
         :return:
         """
-        imgBase64 = self.convert_to_base64(path)
+        img_base64 = self.convert_to_base64(path)
         filename = os.path.split(path)[-1]
-        return self.wapi_functions.sendImage(imgBase64, chatid, filename, caption)
-    
-    
+        return self.wapi_functions.sendImage(img_base64, chat_id, filename, caption)
 
     def chat_send_seen(self, chat_id):
         """
@@ -620,32 +617,32 @@ class WhatsAPIDriver(object):
         for admin_id in admin_ids:
             yield self.get_contact_from_id(admin_id)
 
-    def get_profile_pic_from_id(self, id):
+    def get_profile_pic_from_id(self, block_id):
         """
         Get full profile pic from an id
         The ID must be on your contact book to
         successfully get their profile picture.
 
-        :param id: ID
-        :type id: str
+        :param block_id: ID
+        :type block_id: str
         """
-        profile_pic = self.wapi_functions.getProfilePicFromId(id)
+        profile_pic = self.wapi_functions.getProfilePicFromId(block_id)
         if profile_pic:
             return b64decode(profile_pic)
         else:
             return False
 
-    def get_profile_pic_small_from_id(self, id):
+    def get_profile_pic_small_from_id(self, block_id):
         """
         Get small profile pic from an id
         The ID must be on your contact book to
         successfully get their profile picture.
 
-        :param id: ID
-        :type id: str
+        :param block_id: ID
+        :type block_id: str
         """
-        profile_pic_small = self.wapi_functions.getProfilePicSmallFromId(id)
-        if profile_pic:
+        profile_pic_small = self.wapi_functions.getProfilePicSmallFromId(block_id)
+        if profile_pic_small:
             return b64decode(profile_pic_small)
         else:
             return False
@@ -739,18 +736,17 @@ class WhatsAPIDriver(object):
         url = self._URL + "/send?phone=" + number
         self.driver.get(url)
 
-    def contact_block(self, id):
-        return self.wapi_functions.contactBlock(id)
+    def contact_block(self, block_id):
+        return self.wapi_functions.contactBlock(block_id)
 
-    def contact_unblock(self, id):
-        return self.wapi_functions.contactUnblock(id)
+    def contact_unblock(self, block_id):
+        return self.wapi_functions.contactUnblock(block_id)
 
-    def remove_participant_group(self, idGroup, idParticipant):
-        return self.wapi_functions.removeParticipantGroup(idGroup,idParticipant)
+    def remove_participant_group(self, id_group, id_participant):
+        return self.wapi_functions.removeParticipantGroup(id_group, id_participant)
 
-    def promove_participant_admin_group(self, idGroup, idParticipant):
-        return self.wapi_functions.promoteParticipantAdminGroup(idGroup,idParticipant)
+    def promove_participant_admin_group(self, id_group, id_participant):
+        return self.wapi_functions.promoteParticipantAdminGroup(id_group, id_participant)
 
-
-    def demote_participant_admin_group(self, idGroup, idParticipant):
-        return self.wapi_functions.demoteParticipantAdminGroup(idGroup,idParticipant)
+    def demote_participant_admin_group(self, id_group, id_participant):
+        return self.wapi_functions.demoteParticipantAdminGroup(id_group, id_participant)

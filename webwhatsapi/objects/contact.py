@@ -46,7 +46,7 @@ class Contact(WhatsappObjectWithId):
 
         """
         name = (self.short_name or self.push_name or self.formatted_name)
-        if (isinstance(name, string_types)):
+        if isinstance(name, string_types):
             if self.is_business:
                 safe_name = self.verified_name
             else:
