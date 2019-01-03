@@ -9,6 +9,7 @@ import logging
 from json import dumps, loads
 
 import os
+import platform
 import shutil
 import tempfile
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -149,7 +150,7 @@ class WhatsAPIDriver(object):
         """Closes the selenium instance"""
         self.driver.close()
 
-    def __init__(self, client="firefox", username="API", proxy=None, command_executor=None, loadstyles=False,
+    def __init__(self, client="firefox", username="API", proxy=None, command_executor=None, loadstyles=True,
                  profile=None, headless=False, autoconnect=True, logger=None, extra_params=None, chrome_options=None):
         """Initialises the webdriver"""
 
@@ -193,9 +194,19 @@ class WhatsAPIDriver(object):
             capabilities['webStorageEnabled'] = True
 
             self.logger.info("Starting webdriver")
-            self.driver = webdriver.Firefox(capabilities=capabilities, options=options, **extra_params)
+
+            self.executable_path = './webwhatsapi/driver/geckodriver'
+            if platform.system().lower() == "windows":
+                self.executable_path += ".exe"
+            elif platform.system().lower() == "linux":
+                self.executable_path += "-linux"
+            self.executable_path = os.path.abspath(self.executable_path)
+            print(self.executable_path)
+            self.driver = webdriver.Firefox(executable_path=self.executable_path, capabilities=capabilities,
+                                            options=options, **extra_params)
 
         elif self.client == "chrome":
+
             self._profile = webdriver.ChromeOptions()
             if self._profile_path is not None:
                 self._profile.add_argument("user-data-dir=%s" % self._profile_path)
@@ -206,8 +217,17 @@ class WhatsAPIDriver(object):
             if chrome_options is not None:
                 for option in chrome_options:
                     self._profile.add_argument(option)
+
             self.logger.info("Starting webdriver")
-            self.driver = webdriver.Chrome(chrome_options=self._profile, **extra_params)
+
+            self.executable_path = "./driver/chromedrive"
+            if platform.system().lower() == "windows":
+                self.executable_path += ".exe"
+            elif platform.system().lower() == "linux":
+                self.executable_path += "-linux"
+
+            self.driver = webdriver.Chrome(executable_path=self.executable_path, chrome_options=self._profile,
+                                           **extra_params)
 
         elif client == 'remote':
             if self._profile_path is not None:
