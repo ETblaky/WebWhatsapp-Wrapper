@@ -1173,6 +1173,11 @@ window.WAPI.getBufferedNewMessages = function (done) {
 /** End new messages observable functions **/
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
+    console.log(JSON.stringify(caption));
+    if (JSON.stringify(caption).includes("!null!")) {
+        caption = null;
+    }
+
     let idUser = new window.Store.UserConstructor(chatid);
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {

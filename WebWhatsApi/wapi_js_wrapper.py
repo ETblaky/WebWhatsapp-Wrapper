@@ -117,6 +117,13 @@ class JsFunction(object):
         # Selenium's execute_async_script passes a callback function that should be called when the JS operation is done
         # It is passed to the WAPI function using arguments[0]
         if len(args):
+
+            new_args = list(args)
+            for i in range(0, len(new_args)):
+                if new_args[i] is None:
+                    new_args[i] = '!null!'
+            args = tuple(new_args)
+
             command = "return WAPI.{0}({1}, arguments[0])" \
                 .format(self.function_name, ",".join([str(JsArg(arg)) for arg in args]))
         else:

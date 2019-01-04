@@ -58,7 +58,7 @@ class Message(WhatsappObject):
         self.timestamp = datetime.fromtimestamp(js_obj["timestamp"])
         self.chat_id = js_obj['chatId']
 
-        if js_obj["content"]:
+        if 'content' in js_obj:
             self.content = js_obj["content"]
             self.safe_content = safe_str(self.content[0:25]) + '...'
         elif self.type == 'revoked':
@@ -217,7 +217,10 @@ class MessageGroup(object):
         self.messages = messages
 
     def __repr__(self):
-        safe_chat_name = safe_str(self.chat.name)
+        if hasattr(self.chat, 'name'):
+            safe_chat_name = safe_str(self.chat.name)
+        else:
+            safe_chat_name = "Undefined"
         return "<MessageGroup - {num} {messages} in {chat}>".format(
             num=len(self.messages),
             messages="message" if len(self.messages) == 1 else "messages",
